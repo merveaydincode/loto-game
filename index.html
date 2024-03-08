@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sayı Tahmin Oyunu</title>
+<style>
+    .guessInput {
+        width:50px; 
+        height: 20px;
+    }
+</style>
+</head>
+<body>
+<h2>Sayı Tahmin Oyunu</h2>
+<div>
+    <input type="text" id="guessInput1" class="guessInput">
+    <input type="text" id="guessInput2" class="guessInput">
+    <input type="text" id="guessInput3" class="guessInput">
+    <input type="text" id="guessInput4" class="guessInput">
+    <input type="text" id="guessInput5" class="guessInput">
+    <input type="text" id="guessInput6" class="guessInput">
+    <button onclick="checkGuess()">Tahmin Gir</button>
+    <button id="generateButton" onclick="generateNumbers()">Kurayı Çek</button>
+</div>
+<div id="message"></div>
+<div id="results"></div>
+
+<script>
+    var guesses = [];
+    var numbers = [];
+    var maxGuesses = 6;
+
+    function checkGuess() {
+        var guessInputs = document.getElementsByClassName("guessInput");
+        var invalidInput = false;
+
+        guesses = []; // Her seferinde yeni tahminler alındığında sıfırlanmalıdır.
+
+        for (var i = 0; i < guessInputs.length; i++) {
+            var guess = parseInt(guessInputs[i].value);
+
+            if (isNaN(guess) || guess < 1 || guess > 49) {
+                alert("1-49 arası sayı girmelisiniz.");
+                invalidInput = true;
+                break;
+            }
+
+            if (guesses.includes(guess)) {
+                alert("Aynı tahmin bir kez girilebilir.");
+                invalidInput = true;
+                break;
+            }
+
+            guesses.push(guess);
+        }
+
+        if (!invalidInput) {
+            guesses.sort(function(a, b){return a - b}); // Girilen sayıları küçükten büyüğe sırala
+            displayGuesses();
+            checkMaxGuesses();
+            displayMessage();
+        }
+    }
+
+    function displayGuesses() {
+        var guessInputs = document.getElementsByClassName("guessInput");
+
+        for (var i = 0; i < guesses.length; i++) {
+            guessInputs[i].value = guesses[i];
+        }
+    }
+
+    function checkMaxGuesses() {
+        if (guesses.length >= maxGuesses) {
+            document.getElementById("generateButton").disabled = false;
+        }
+    }
+
+    function generateNumbers() {
+        numbers = [];
+        while (numbers.length < maxGuesses) {
+            var randomNumber = Math.floor(Math.random() * 49) + 1;
+            if (!numbers.includes(randomNumber)) {
+                numbers.push(randomNumber);
+            }
+        }
+        numbers.sort(function(a, b){return a - b});
+        displayResults();
+    }
+
+    function displayResults() {
+        var resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = "";
+
+        var numbersDiv = document.createElement("div");
+        numbersDiv.textContent = "Loto Sayıları: ";
+
+        for (var i = 0; i < numbers.length; i++) {
+            var input = document.createElement("input");
+            input.type = "text";
+            input.value = numbers[i];
+            input.disabled = true; // Sayılar değiştirilemez olacak
+            input.className = "guessInput"; // aynı stili devam ettirecek
+            numbersDiv.appendChild(input);
+        }
+
+        resultsDiv.appendChild(numbersDiv);
+
+        var guessCount = getGuessCount();
+        var countSpan = document.createElement("span");
+        countSpan.textContent = "Bilinen Sayılar: ";
+        resultsDiv.appendChild(countSpan);
+
+        var correctNumbers = getCorrectNumbers();
+        var correctNumbersSpan = document.createElement("span");
+        for (var i = 0; i < correctNumbers.length; i++) {
+            correctNumbersSpan.textContent += correctNumbers[i] + " ";
+        }
+        resultsDiv.appendChild(correctNumbersSpan);
+
+        var correctGuessCount = correctNumbers.length;
+        var guessCountText = document.createElement("span");
+        guessCountText.textContent =  correctGuessCount + " adet sayı bildiniz.";
+        resultsDiv.appendChild(guessCountText);
+    }
+
+    function getGuessCount() {
+        var count = 0;
+        for (var i = 0; i < guesses.length; i++) {
+            if (numbers.includes(guesses[i])) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    function getCorrectNumbers() {
+        var correctNumbers = [];
+        for (var i = 0; i < guesses.length; i++) {
+            if (numbers.includes(guesses[i])) {
+                correctNumbers.push(guesses[i]);
+            }
+        }
+        return correctNumbers;
+    }
+
+    function displayMessage() {
+        var messageDiv = document.getElementById("message");
+        messageDiv.textContent = "Tahminler girildi.";
+    }
+</script>
+</body>
+</html>
